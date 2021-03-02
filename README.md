@@ -15,7 +15,7 @@ To guarantee that every photo is a dog photo.
 #### `Live Search`
 Search through our extensive list of dog breeds.
 #### `Typescript`
-Written with code readabilit and reusability as a priority.
+Written with code readability and reusability as a priority.
 
 ### How to Run
 This app utilizes [NPM](https://nodejs.org/en/) and the [Expo Cli](https://docs.expo.io/workflow/expo-cli/).
@@ -26,4 +26,8 @@ This app utilizes [NPM](https://nodejs.org/en/) and the [Expo Cli](https://docs.
     * ios Emulator => through [xCode](https://developer.apple.com/xcode/)
     * Android Emulator => through [Android Studio](https://developer.android.com/studio)
     * On a device => through [Expo Go](https://blog.expo.io/expo-go-a-new-name-for-the-expo-client-4684a2709904)
+
+
+### Credits:
+* [Dog API](https://dog.ceo/dog-api/)
 
