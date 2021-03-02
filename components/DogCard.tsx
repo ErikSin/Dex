@@ -27,7 +27,7 @@ export const DogCard = ({breed, dogBreedFunction}:dogCardProp) =>
                 onPress={selectBreed}
             >
                 <View style={styles.button}>
-                    <Text h4 style={{fontFamily:'Prata_400Regular'}}>{breed.charAt(0).toUpperCase() + breed.slice(1)}</Text>
+                    <Text style={{fontFamily:'Prata_400Regular', fontSize:18}}>{breed.charAt(0).toUpperCase() + breed.slice(1)}</Text>
                 </View>
                 
             </TouchableHighlight>

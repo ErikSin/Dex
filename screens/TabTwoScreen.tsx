@@ -266,9 +266,9 @@ export default function TabTwoScreen()
                 }
               </View>
             </Overlay>
-            <Overlay isVisible={exitModalOpen} onBackdropPress={reset}>
-              <View style={{padding:30}}>
-                <Text h3> Great! All taken care of!</Text>
+            <Overlay transparent isVisible={exitModalOpen} onBackdropPress={reset}>
+              <View style={{padding:30, backgroundColor:"#000"}}>
+                <Text h3 style={[styles.serif, {color:'#FFF', textAlign:'center'}]}> Great, All taken care of!</Text>
               </View>
             </Overlay>
           </View>

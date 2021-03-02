@@ -1,9 +1,11 @@
- import React, {useState} from 'react';
-import {Text, ScrollView, StyleSheet, Button, View } from 'react-native'
+ import React, {useRef, useState} from 'react';
+import {Text, ScrollView, StyleSheet, Button, View, ActivityIndicator } from 'react-native'
 import { SearchBar } from 'react-native-elements';
 import { getDogBreedList, } from '../../api/api';
 import { DogCard } from '../../components/DogCard';
 import Fuse from 'fuse.js'
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import { AntDesign } from '@expo/vector-icons'; 
 
 type genFunction = () => void
 type breedFunction = (breed:string) =>void
@@ -20,14 +22,14 @@ export const DogBreedModal = ({closeFunction, dogBreedFunction}:dogBreedProp) =>
 {
     const [dogList, setDogList] = useState<string[] | string>([])
     const [searchValue, setSearchValue] = useState("")
-    const [fullDogList, setFullDogList] = useState<string[]>([])
+    const fullDogList = useRef<string[]>([])
 
     React.useEffect(()=>
     {
         getDogBreedList().then(res =>
         {
-            setFullDogList(Object.keys(res.message))
-            setDogList(Object.keys(res.message))
+            fullDogList.current = ["random", ...Object.keys(res.message)]
+            setDogList(fullDogList.current)
         }).catch((err:Error) =>
         {
             console.log(err.message)
@@ -40,15 +42,18 @@ export const DogBreedModal = ({closeFunction, dogBreedFunction}:dogBreedProp) =>
         setSearchValue(value)
         if(!value.trim())
         {
-            setDogList(fullDogList)
+            setDogList(fullDogList.current)
         }
         else
         {
-            const fuse = new Fuse(fullDogList)
+            const options:Fuse.IFuseOptions<string> = {
+                threshold:0.4
+            }
+            const fuse = new Fuse(fullDogList.current, options)
             const results = fuse.search(value)
             if(!results.length)
             {
-                setDogList(fullDogList)
+                setDogList(fullDogList.current)
             }
             else
             {
@@ -65,10 +70,12 @@ export const DogBreedModal = ({closeFunction, dogBreedFunction}:dogBreedProp) =>
         
     }
 
-    if(dogList.length===0)
+    if(fullDogList.current.length===0)
     {
         return (
-            <Text>Loading</Text>
+            <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+                <ActivityIndicator size="large"/>
+            </View>
         )
     }
     else
@@ -76,13 +83,18 @@ export const DogBreedModal = ({closeFunction, dogBreedFunction}:dogBreedProp) =>
         return (
 
             <ScrollView contentContainerStyle={{flexGrow:1}}>
-                <View style={{paddingTop:40}}>
-                    <Button title="Close" onPress={closeFunction} />
-                    
-                    <SearchBar
-                        value={searchValue}
-                        onChangeText={(e)=>{updateSearch(e)}}
-                    />
+                <View>
+                    <View style={styles.header}>
+                        <TouchableOpacity style={{padding:10}} onPress={closeFunction}>
+                            <AntDesign name="back"  size={35} color="black" />
+                        </TouchableOpacity>
+                        
+                        <SearchBar
+                            style={{flexGrow:1}}
+                            value={searchValue}
+                            onChangeText={(e)=>{updateSearch(e)}}
+                        />
+                    </View>
 
                     
                     {
@@ -104,6 +116,12 @@ export const DogBreedModal = ({closeFunction, dogBreedFunction}:dogBreedProp) =>
     }
 }
 
-
+const styles = StyleSheet.create({
+    header:{
+        backgroundColor:"#a4cfe0",
+        paddingTop:40,
+        
+    }
+})
 
 

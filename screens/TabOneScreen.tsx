@@ -1,18 +1,23 @@
 import * as React from 'react';
-import { Button, StyleSheet, ScrollView, Modal, ActivityIndicator } from 'react-native';
+import { Button, StyleSheet, ScrollView, Modal, ActivityIndicator, Image as Oimage } from 'react-native';
 import EditScreenInfo from '../components/EditScreenInfo';
 import { View } from '../components/Themed';
 import { getDogBreedList, getRandomDog, getRandomDogByBreed} from '../api/api'
 import { DogBreedModal, } from './modals/DogSearch';
 import {Text, Image} from 'react-native-elements'
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { Dimensions } from 'react-native';
+import { DogPhotoApi } from '../models/dog-photo';
 
+const maxHeight = 450
+const maxWidth = (Dimensions.get('window').width) * .9;
 
 export default function TabOneScreen() {
   
   const [dogBreed, setBreed] = React.useState("")
   const [dogUri, setDogUri] = React.useState<string>("")
   const [modalVisible, setModalVisible] = React.useState(false);
+  const [dimensions, setDimesions] = React.useState<{width:number, height:number}>({width:0, height: 0})
   
   React.useEffect(()=>
   {
@@ -26,7 +31,18 @@ export default function TabOneScreen() {
   async function changePhoto()
   {
     setDogUri("")
-    const res = await getRandomDogByBreed(dogBreed)
+    const res= dogBreed.toLowerCase() === 'random' ?
+      await getRandomDog() : await getRandomDogByBreed(dogBreed);
+    
+    Oimage.getSize(res.message, (realWidth, realHeight)=>
+    {
+      if(realWidth > maxWidth)
+      {
+        const scaleFactor = maxWidth/realWidth;
+        const newHeight = realHeight * scaleFactor;
+        setDimesions({height:newHeight, width:maxWidth})
+      }
+    })
     setDogUri(res.message)
   }
 
@@ -76,11 +92,17 @@ export default function TabOneScreen() {
   
           {!!dogBreed &&
             <React.Fragment>
+              
               <View style={styles.picContainer}>
-                <Image style={{ width: 300, height: 450 }} 
-                source={{uri: dogUri}}
-                PlaceholderContent={<ActivityIndicator />}
-                /> 
+                {!dogUri &&
+                  <ActivityIndicator size="large"/>
+                }
+
+                {!!dogUri &&
+                  <Image style={{ width:dimensions.width, height:dimensions.height}} 
+                  source={{uri: dogUri}}
+                  /> 
+                }
               </View>
   
               <View style={[styles.container]}>
@@ -124,7 +146,9 @@ const styles = StyleSheet.create({
     borderBottomWidth:1,
     alignItems:'center',
     width:'100%',
-    backgroundColor:'#fff'
+    backgroundColor:'#fff',
+    minHeight:505,
+    justifyContent:'center'
   },
   buttonView:
   {
