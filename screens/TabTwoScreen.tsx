@@ -45,7 +45,6 @@ export default function TabTwoScreen()
         const { status } = await Camera.requestPermissionsAsync();
         status !== 'granted'?setThisState(pageStates.noPermission):setThisState(pageStates.takingPhoto)
       })();
-      console.log()
       
     }, []);
 
@@ -197,7 +196,6 @@ export default function TabTwoScreen()
           const image:Parse.File = results.get('image')
           detectDog(image._url ).then((results)=>
           {
-            console.log(results)
             setTags(results.description.tags)
             setAiResult(results.description.captions[0].text)
           })
@@ -250,7 +248,7 @@ export default function TabTwoScreen()
   
                     { hasDog === dogPhotoState.noDog &&
                       <React.Fragment>
-                        <Text style={[styles.serif, {marginTop:15, fontSize:18, padding:10}]}>Im sorry, it looks like there is no dog in this photo. Is this a mistake? I can send this to a human to look at if you think so!</Text>
+                        <Text style={[styles.serif, {marginTop:15, fontSize:18, padding:10}]}>I'm sorry, it looks like there is no dog in this photo. Is this a mistake? I can send this to a human and they can check!</Text>
   
                         <View style={styles.btnContainer}>
                           <TouchableOpacity onPress={nextModal} style={[styles.btn, {paddingLeft:25, paddingRight:25}]}>
