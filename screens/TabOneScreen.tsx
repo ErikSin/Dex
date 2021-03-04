@@ -1,16 +1,15 @@
 import * as React from 'react';
-import { Button, StyleSheet, ScrollView, Modal, ActivityIndicator, Image as Oimage } from 'react-native';
-import EditScreenInfo from '../components/EditScreenInfo';
+import { StyleSheet, ScrollView, Modal, ActivityIndicator, Image as Oimage } from 'react-native';
 import { View } from '../components/Themed';
-import { getDogBreedList, getRandomDog, getRandomDogByBreed} from '../api/api'
+import { getRandomDog, getRandomDogByBreed} from '../api/api'
 import { DogBreedModal, } from './modals/DogSearch';
 import {Text, Image} from 'react-native-elements'
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Dimensions } from 'react-native';
-import { DogPhotoApi } from '../models/dog-photo';
 
 const maxHeight = 450
 const maxWidth = (Dimensions.get('window').width) * .9;
+const placeholderPhoto = 'https://parsefiles.back4app.com/bfyjkEIutoUhOjChbagYxfzpfQF6qQgx5lX2YBO3/864e3823658043926ca4b4e79aee0037_Vest.jpg'
 
 export default function TabOneScreen() {
   
@@ -19,6 +18,19 @@ export default function TabOneScreen() {
   const [modalVisible, setModalVisible] = React.useState(false);
   const [dimensions, setDimesions] = React.useState<{width:number, height:number}>({width:0, height: 0})
   
+  function sizePhoto(photoUri:string)
+  {
+    Oimage.getSize(photoUri, (realWidth, realHeight)=>
+    {
+      if(realWidth > maxWidth)
+      {
+        const scaleFactor = maxWidth/realWidth;
+        const newHeight = realHeight * scaleFactor;
+        setDimesions({height:newHeight, width:maxWidth})
+      }
+    })
+  }
+
   React.useEffect(()=>
   {
     setModalVisible(false)
@@ -34,15 +46,8 @@ export default function TabOneScreen() {
     const res= dogBreed.toLowerCase() === 'random' ?
       await getRandomDog() : await getRandomDogByBreed(dogBreed);
     
-    Oimage.getSize(res.message, (realWidth, realHeight)=>
-    {
-      if(realWidth > maxWidth)
-      {
-        const scaleFactor = maxWidth/realWidth;
-        const newHeight = realHeight * scaleFactor;
-        setDimesions({height:newHeight, width:maxWidth})
-      }
-    })
+    sizePhoto(res.message)
+
     setDogUri(res.message)
   }
 
@@ -55,6 +60,11 @@ export default function TabOneScreen() {
   {
     setBreed(breed)
     setModalVisible(false)
+  }
+
+  if(!dogBreed && !dimensions.width)
+  {
+    sizePhoto(placeholderPhoto)
   }
 
     return (
@@ -85,8 +95,8 @@ export default function TabOneScreen() {
           { !dogBreed &&
             <View style={styles.picContainer}>
               <Image
-                style={{ width: 300, height: 450 }} 
-                source={{uri:'https://parsefiles.back4app.com/bfyjkEIutoUhOjChbagYxfzpfQF6qQgx5lX2YBO3/7b53eef4b6112daf4bbf11a78c5f7cd8_Vest.jpg'}}></Image>
+                style={{ width: dimensions.width, height: dimensions.height }} 
+                source={{uri:placeholderPhoto}}></Image>
             </View>
           }
   
@@ -113,23 +123,16 @@ export default function TabOneScreen() {
             </React.Fragment>
           }
         </View>
-  
         <Modal
           animationType="slide"
           visible={modalVisible}
           onRequestClose={()=>setModalVisible(!modalVisible)}
           >
             <DogBreedModal dogBreedFunction={getBreedFromUser} closeFunction={closeModal}/>
-  
         </Modal>
-  
-  
       </ScrollView>
     );
 }
-
-  
-
 
 const styles = StyleSheet.create({
   container: {
